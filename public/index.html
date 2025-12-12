@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аренда Строительной Техники</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="container header-content">
+            <div>
+                <h1>🏗️ СтройРент</h1>
+                <p>Надежная техника для ваших проектов</p>
+            </div>
+            <button id="orders-btn" class="btn btn-secondary">📋 Заказано</button>
+        </div>
+    </header>
+
+    <!-- Orders Modal -->
+    <div id="orders-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>История Заказов</h2>
+            <div class="table-responsive">
+                <table id="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Техника</th>
+                            <th>Клиент</th>
+                            <th>Дата начала</th>
+                            <th>Дата конца</th>
+                            <th>Статус</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Orders will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <main class="container">
+        <section id="catalog">
+            <h2>Каталог Техники</h2>
+            <div id="equipment-list" class="grid">
+                <!-- Equipment items will be loaded here -->
+                <div class="loading">Загрузка техники...</div>
+            </div>
+        </section>
+
+        <section id="rental-form-section" class="hidden">
+            <h2>Оформление Аренды</h2>
+            <form id="rental-form">
+                <input type="hidden" id="equipment-id" name="equipment_id">
+
+                <div class="form-group">
+                    <label>Выбранная техника:</label>
+                    <input type="text" id="equipment-name" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="client-name">Ваше Имя:</label>
+                    <input type="text" id="client-name" name="client_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="client-email">Email:</label>
+                    <input type="email" id="client-email" name="client_email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="start-date">Дата начала:</label>
+                    <input type="date" id="start-date" name="start_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="end-date">Дата окончания:</label>
+                    <input type="date" id="end-date" name="end_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Итоговая стоимость:</label>
+                    <div id="total-price">0 ₽</div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Подтвердить аренду</button>
+                    <button type="button" id="cancel-rental" class="btn btn-secondary">Отмена</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 СтройРент. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

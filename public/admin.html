@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель: Аренда Строительной Техники</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .status-active {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-completed {
+            color: blue;
+        }
+
+        .status-cancelled {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container admin-header">
+            <h1>🏗️ СтройРент: Админ-панель</h1>
+            <a href="/" class="back-link">← На главную</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section>
+            <h2>Список Аренды</h2>
+            <div id="rentals-list">
+                <table id="rentals-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Клиент</th>
+                            <th>Email</th>
+                            <th>Техника</th>
+                            <th>Начало</th>
+                            <th>Конец</th>
+                            <th>Сумма</th>
+                            <th>Статус</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rentals will be loaded here -->
+                    </tbody>
+                </table>
+                <div id="loading" class="loading">Загрузка данных...</div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 СтройРент. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const tableBody = document.querySelector('#rentals-table tbody');
+            const loading = document.getElementById('loading');
+
+            try {
+                const response = await fetch('/api/rentals');
+                const rentals = await response.json();
+
+                loading.style.display = 'none';
+
+                if (rentals.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center">Аренд пока нет.</td></tr>';
+                    return;
+                }
+
+                rentals.forEach(rental => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${rental.id}</td>
+                        <td>${rental.client ? rental.client.name : 'Неизвестно'}</td>
+                        <td>${rental.client ? rental.client.email : '-'}</td>
+                        <td>${rental.equipment ? rental.equipment.name : 'Удалено'}</td>
+                        <td>${new Date(rental.start_date).toLocaleDateString()}</td>
+                        <td>${new Date(rental.end_date).toLocaleDateString()}</td>
+                        <td>${rental.total_price} ₽</td>
+                        <td class="status-${rental.status}">${rental.status}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading rentals:', error);
+                loading.textContent = 'Ошибка загрузки данных.';
+            }
+        });
+    </script>
+</body>
+
+</html>
