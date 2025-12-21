@@ -1,34 +1,35 @@
 version: '3.8'
 
 services:
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    volumes:
-      - .:/app
-      - /app/node_modules
+  postgresdb:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    env_file: ./.env
     environment:
-      - PORT=3000
-      - DB_HOST=db
-      - DB_USER=postgres
-      - DB_PASSWORD=1
-      - DB_NAME=postgres
-      - DB_DIALECT=postgres
-    depends_on:
-      - db
-    command: sh -c "npm run seed && npm start"
+      POSTGRES_USER: ${POSTGRESDB_USER}
+      POSTGRES_PASSWORD: ${POSTGRESDB_ROOT_PASSWORD}
+      POSTGRES_DB: ${POSTGRESDB_DATABASE}
+    ports:
+      - ${POSTGRESDB_LOCAL_PORT}:${POSTGRESDB_DOCKER_PORT}
+    volumes:
+      - db:/var/lib/postgresql/data
 
-  db:
-    image: postgres:15
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=1
-      - POSTGRES_DB=postgres
+  app:
+    depends_on:
+      - postgresdb
+    build: ./trade-app
+    restart: unless-stopped
+    env_file: ./.env
     ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ${NODE_LOCAL_PORT}:${NODE_DOCKER_PORT}
+    environment:
+      DB_HOST: postgresdb
+      DB_USER: ${POSTGRESDB_USER}
+      DB_PASSWORD: ${POSTGRESDB_ROOT_PASSWORD}
+      DB_NAME: ${POSTGRESDB_DATABASE}
+      DB_PORT: ${POSTGRESDB_DOCKER_PORT}
+    stdin_open: true
+    tty: true
 
 volumes:
-  pgdata:
+  db:
