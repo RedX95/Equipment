@@ -1,115 +1,110 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const { sequelize } = require('./models');
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
 
+// Инициализация приложения
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.NODE_DOCKER_PORT || 3000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, "public")));
 
-// Import models
-const { Equipment, Client, Rental } = require('./models');
+// Sequelize
+const db = require("./app/models");
 
-// API Routes
 
-// Get all equipment
-app.get('/api/equipment', async (req, res) => {
-    try {
-        const equipment = await Equipment.findAll();
-        res.json(equipment);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Error fetching equipment' });
-    }
+
+// =======================
+// API ROUTES
+// =======================
+
+// Проверка сервера
+app.get("/api/test", (req, res) => {
+  res.json({ message: "ConstructionRental API works" });
 });
 
-// Get all clients
-app.get('/api/clients', async (req, res) => {
-    try {
-        const clients = await Client.findAll();
-        res.json(clients);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Error fetching clients' });
-    }
+// Получить все категории
+app.get("/api/categories", async (req, res) => {
+  try {
+    const categories = await db.Category.findAll();
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Get all rentals
-app.get('/api/rentals', async (req, res) => {
-    try {
-        const rentals = await Rental.findAll({
-            include: [
-                { model: Client, as: 'client' },
-                { model: Equipment, as: 'equipment' }
-            ],
-            order: [['createdAt', 'DESC']]
-        });
-        res.json(rentals);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Error fetching rentals' });
-    }
+// Получить всё оборудование
+app.get("/api/equipment", async (req, res) => {
+  try {
+    const equipment = await db.Equipment.findAll({
+      include: db.Category
+    });
+    res.json(equipment);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Create a new rental
-app.post('/api/rentals', async (req, res) => {
-    try {
-        const { client_name, client_email, equipment_id, start_date, end_date } = req.body;
+// Получить клиентов
+app.get("/api/clients", async (req, res) => {
+  try {
+    const clients = await db.Client.findAll();
+    res.json(clients);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
-        // Find or create client
-        const [client] = await Client.findOrCreate({
-            where: { email: client_email },
-            defaults: { name: client_name }
-        });
-
-        // Get equipment to calculate price
-        const equipment = await Equipment.findByPk(equipment_id);
-        if (!equipment) {
-            return res.status(404).json({ error: 'Equipment not found' });
+// Получить заказы
+app.get("/api/orders", async (req, res) => {
+  try {
+    const orders = await db.Order.findAll({
+      include: [
+        db.Client,
+        db.PriceCategory,
+        {
+          model: db.Equipment,
+          through: { attributes: ["quantity", "rentPrice"] }
         }
-
-        // Calculate total price (simplified)
-        const start = new Date(start_date);
-        const end = new Date(end_date);
-        const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-        const total_price = days * equipment.price_per_day;
-
-        const rental = await Rental.create({
-            client_id: client.id,
-            equipment_id,
-            start_date,
-            end_date,
-            total_price
-        });
-
-        res.status(201).json(rental);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Error creating rental' });
-    }
+      ]
+    });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
+// =======================
+// FRONTEND ROUTES
+// =======================
 
 // Главная страница
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Админ панель
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+// Админ-панель
+app.get("/admin", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
-// Sync database and start server
-sequelize.sync({ force: false }).then(() => {
-    console.log('Database synced');
+// =======================
+// START SERVER
+// =======================
+
+db.sequelize
+  .sync()
+  .then(() => {
+    console.log("✅ Database synced");
+    require("./app/routes/category.routes")(app);
     app.listen(PORT, () => {
-        console.log(`🚀 Сервер запущен на порту ${PORT}`);
-        console.log(`📱 Откройте http://localhost:${PORT} в браузере`);
+      console.log(`🚀 Сервер запущен на порту ${PORT}`);
+      console.log(`📱 Откройте http://localhost:${PORT}`);
     });
-});
+  })
+  .catch((err) => {
+    console.error("❌ Ошибка подключения к БД:", err);
+  });
