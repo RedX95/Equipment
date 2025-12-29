@@ -2,6 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsdoc = require("swagger-jsdoc");
 
 // Инициализация приложения
 const app = express();
@@ -15,7 +17,30 @@ app.use(express.static(path.join(__dirname, "public")));
 // Sequelize
 const db = require("./app/models");
 
+// Swagger configuration
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Construction Rental API",
+      version: "1.0.0",
+      description: "API для управления арендой строительного оборудования",
+      contact: {
+        name: "API Support"
+      }
+    },
+    servers: [
+      {
+        url: `http://localhost:${PORT}`,
+        description: "Development server"
+      }
+    ]
+  },
+  apis: ["./app/routes/*.routes.js"]
+};
 
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // =======================
 // API ROUTES
@@ -26,56 +51,14 @@ app.get("/api/test", (req, res) => {
   res.json({ message: "ConstructionRental API works" });
 });
 
-// Получить все категории
-app.get("/api/categories", async (req, res) => {
-  try {
-    const categories = await db.Category.findAll();
-    res.json(categories);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Получить всё оборудование
-app.get("/api/equipment", async (req, res) => {
-  try {
-    const equipment = await db.Equipment.findAll({
-      include: db.Category
-    });
-    res.json(equipment);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Получить клиентов
-app.get("/api/clients", async (req, res) => {
-  try {
-    const clients = await db.Client.findAll();
-    res.json(clients);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Получить заказы
-app.get("/api/orders", async (req, res) => {
-  try {
-    const orders = await db.Order.findAll({
-      include: [
-        db.Client,
-        db.PriceCategory,
-        {
-          model: db.Equipment,
-          through: { attributes: ["quantity", "rentPrice"] }
-        }
-      ]
-    });
-    res.json(orders);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// Подключение всех маршрутов
+require("./app/routes/category.routes")(app);
+require("./app/routes/equipment.routes")(app);
+require("./app/routes/client.routes")(app);
+require("./app/routes/order.routes")(app);
+require("./app/routes/payment.routes")(app);
+require("./app/routes/price-category.routes")(app);
+require("./app/routes/order-equipment.routes")(app);
 
 // =======================
 // FRONTEND ROUTES
@@ -99,10 +82,10 @@ db.sequelize
   .sync()
   .then(() => {
     console.log("✅ Database synced");
-    require("./app/routes/category.routes")(app);
     app.listen(PORT, () => {
       console.log(`🚀 Сервер запущен на порту ${PORT}`);
       console.log(`📱 Откройте http://localhost:${PORT}`);
+      console.log(`📚 Swagger UI: http://localhost:${PORT}/api-docs`);
     });
   })
   .catch((err) => {

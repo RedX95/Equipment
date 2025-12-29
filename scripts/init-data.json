@@ -1,0 +1,147 @@
+{
+  "categories": [
+    {
+      "name": "Строительное оборудование",
+      "baseCategoryId": null
+    },
+    {
+      "name": "Электроинструменты",
+      "baseCategoryId": 1
+    },
+    {
+      "name": "Бетономешалки",
+      "baseCategoryId": 1
+    },
+    {
+      "name": "Леса и подмости",
+      "baseCategoryId": null
+    }
+  ],
+  "equipment": [
+    {
+      "name": "Перфоратор Bosch",
+      "inventoryNumber": "INV-001",
+      "categoryId": 2
+    },
+    {
+      "name": "Дрель-шуруповерт",
+      "inventoryNumber": "INV-002",
+      "categoryId": 2
+    },
+    {
+      "name": "Бетономешалка 150л",
+      "inventoryNumber": "INV-003",
+      "categoryId": 3
+    },
+    {
+      "name": "Леса строительные 2м",
+      "inventoryNumber": "INV-004",
+      "categoryId": 4
+    },
+    {
+      "name": "Болгарка",
+      "inventoryNumber": "INV-005",
+      "categoryId": 2
+    }
+  ],
+  "clients": [
+    {
+      "fullName": "Иванов Иван Иванович",
+      "phone": "+79991234567"
+    },
+    {
+      "fullName": "Петров Петр Петрович",
+      "phone": "+79997654321"
+    },
+    {
+      "fullName": "Сидоров Сидор Сидорович",
+      "phone": "+79995555555"
+    }
+  ],
+  "priceCategories": [
+    {
+      "dateStart": "2024-01-01T00:00:00.000Z",
+      "dateEnd": "2024-12-31T23:59:59.999Z"
+    },
+    {
+      "dateStart": "2025-01-01T00:00:00.000Z",
+      "dateEnd": "2025-12-31T23:59:59.999Z"
+    }
+  ],
+  "orders": [
+    {
+      "dateStart": "2024-01-15T08:00:00.000Z",
+      "dateEnd": "2024-01-20T18:00:00.000Z",
+      "status": "completed",
+      "clientId": 1,
+      "priceCategoryId": 1
+    },
+    {
+      "dateStart": "2024-02-01T08:00:00.000Z",
+      "dateEnd": "2024-02-10T18:00:00.000Z",
+      "status": "active",
+      "clientId": 2,
+      "priceCategoryId": 1
+    },
+    {
+      "dateStart": "2024-03-01T08:00:00.000Z",
+      "dateEnd": "2024-03-05T18:00:00.000Z",
+      "status": "pending",
+      "clientId": 3,
+      "priceCategoryId": 1
+    }
+  ],
+  "orderEquipment": [
+    {
+      "quantity": 2,
+      "rentPrice": 1500.00,
+      "orderId": 1,
+      "equipmentId": 1
+    },
+    {
+      "quantity": 1,
+      "rentPrice": 2000.00,
+      "orderId": 1,
+      "equipmentId": 3
+    },
+    {
+      "quantity": 1,
+      "rentPrice": 1200.00,
+      "orderId": 2,
+      "equipmentId": 2
+    },
+    {
+      "quantity": 3,
+      "rentPrice": 800.00,
+      "orderId": 2,
+      "equipmentId": 4
+    },
+    {
+      "quantity": 1,
+      "rentPrice": 1000.00,
+      "orderId": 3,
+      "equipmentId": 5
+    }
+  ],
+  "payments": [
+    {
+      "amount": 5000.00,
+      "paymentDate": "2024-01-15T10:00:00.000Z",
+      "paymentType": "cash",
+      "orderId": 1
+    },
+    {
+      "amount": 3600.00,
+      "paymentDate": "2024-02-01T10:00:00.000Z",
+      "paymentType": "card",
+      "orderId": 2
+    },
+    {
+      "amount": 500.00,
+      "paymentDate": "2024-02-05T10:00:00.000Z",
+      "paymentType": "card",
+      "orderId": 2
+    }
+  ]
+}
+

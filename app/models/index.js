@@ -7,7 +7,11 @@ const sequelize = new Sequelize(
   {
     host: process.env.DB_HOST,
     dialect: "postgres",
-    logging: false
+    logging: false,
+    define: {
+      underscored: true,
+      timestamps: true
+    }
   }
 );
 
@@ -94,6 +98,25 @@ db.Order.hasMany(db.Payment, {
 db.Payment.belongsTo(db.Order, {
   foreignKey: "orderId",
   as: "order"
+});
+
+// OrderEquipment связи
+db.Order.hasMany(db.OrderEquipment, {
+  foreignKey: "orderId",
+  as: "orderEquipment"
+});
+db.OrderEquipment.belongsTo(db.Order, {
+  foreignKey: "orderId",
+  as: "order"
+});
+
+db.Equipment.hasMany(db.OrderEquipment, {
+  foreignKey: "equipmentId",
+  as: "orderEquipment"
+});
+db.OrderEquipment.belongsTo(db.Equipment, {
+  foreignKey: "equipmentId",
+  as: "equipment"
 });
 
 module.exports = db;
